@@ -8,12 +8,12 @@ export const GET_DECK = "GET_DECK";
 export const CARDS_FOR_DEALER = "CARDS_FOR_DEALER";
 export const CARDS_FOR_PLAYER = "CARDS_FOR_PLAYER";
 
+export const GAME_SCORES ="GAME_SCORES";
 
 export const URL = "https://deckofcardsapi.com/api/deck";
 export const ROLES = {
     DEALER : "DEALER",
-    PLAYER : "PLAYER",
-    FOR_BOTH : "FOR_BOTH"
+    PLAYER : "PLAYER"
 };
 
 //GET DATA
@@ -42,6 +42,14 @@ export const remainingCards = (numberOfCards) => {
     return { type: REMAINING_CARDS, numberOfCards };
 };
 
-export const showHiddenCard = (bool) => {
-    return { type: SHOW_HIDDEN_CARD, bool}
+export const showHiddenCard = (show) => {
+    return { type: SHOW_HIDDEN_CARD, show}
 };
+
+export const storeGameScores = (role, hand) => {
+    return {
+        type: GAME_SCORES,
+        role,
+        hand
+    }
+}

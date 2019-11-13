@@ -1,14 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import Dealer from "./Dealer";
 import Player from "./Player";
 import './App.css';
-import {arrayOfNumericValues} from "./Helper";
-import {getDeck, showHiddenCard, stand} from './actions';
-import { connect } from 'react-redux'
+import { getData} from "./Helper";
+import {getDeck, ROLES, showHiddenCard, stand} from './actions';
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 
-function App({dispatch}) {
-  let [deck, setDeck] = useState();
-  let [newCard, setNewCard] = useState(0);
+function App({dispatch, deckId, playerCards}) {
 
   useEffect(()=> {
     // let url = "https://deckofcardsapi.com/api/qddssc6hnh40/shuffle/";
@@ -17,20 +16,12 @@ function App({dispatch}) {
       mode: "cors"
     }).then(response => response.json()).then(final => {
         dispatch(getDeck(final));
-        setDeck(final);
-    });
+    }).catch( error => console.log("failed to get deck data", error));
   },[]);
 
-  useEffect( ()=> {
-      if(arrayOfNumericValues){
-        console.log(arrayOfNumericValues);
-      }
-  }, [arrayOfNumericValues]);
-
   const hitCard = () => {
-      console.log(1);
-      setNewCard(newCard++);
       dispatch(showHiddenCard(true));
+      getData(dispatch, deckId, 1, ROLES.PLAYER);
   };
 
   const standCards = () => {
@@ -46,9 +37,22 @@ function App({dispatch}) {
           <button className="deal text">100</button>
           <button title="Stand" id="stand" onClick={standCards}/>
       </div>
-      <Player hit={newCard+1}/>
+      <Player />
     </div>
   );
-}
+};
 
-export default connect()(App);
+ App.propTypes = {
+     dispatch: PropTypes.func,
+     deckId: PropTypes.string
+ };
+
+const mapStateToProps = (state) => {
+    return {
+        deckId: state && state.deckData && state.deckData.deck_id,
+        playerCards: state && state.playerCards,
+        showHiddenCard: state && state.uiChanges && state.uiChanges.hiddenCard
+    }
+};
+
+export default connect(mapStateToProps)(App);

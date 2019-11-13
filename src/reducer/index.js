@@ -4,10 +4,8 @@ import {
     STAND,
     SHOW_HIDDEN_CARD,
     REMAINING_CARDS,
-    GET_DECK,
     CARDS_FOR_DEALER,
-    CARDS_FOR_PLAYER,
-    ROLES
+    CARDS_FOR_PLAYER, GAME_SCORES
 } from './../actions';
 
 const uiChanges = (state = {}, action) => {
@@ -20,18 +18,25 @@ const uiChanges = (state = {}, action) => {
 };
 
 const deckData = (state = {}, action) => {
-    switch (action.type) {
-        case GET_DECK:
+    if (action.type) {
             return Object.assign( {}, state, action.deck);
-        case CARDS_FOR_DEALER:
-            return Object.assign( {}, state, { dealer: action.cards });
-        case CARDS_FOR_PLAYER:
-            return Object.assign( {}, state, { player: action.cards });
-            //Object.assign( {}, state,  { player: action.cards });
-        default:
-            return state;
     }
-}
+    return state;
+};
+
+const playerCards = (state = [], action) => {
+    if(action.type === CARDS_FOR_PLAYER) {
+        return [ ...state, ...action.cards];
+    }
+    return state;
+};
+
+const dealerCards = (state = [], action) => {
+    if(action.type === CARDS_FOR_DEALER) {
+        return [ ...state, ...action.cards];
+    }
+    return state;
+};
 
 const hitCardReducer = (state = [], action) => {
     if (action.type === HIT_CARD) {
@@ -40,11 +45,10 @@ const hitCardReducer = (state = [], action) => {
     return state;
 };
 
-const calculate = (state = {}, action) => {
+const calculations = (state = {}, action) => {
     switch (action.type) {
         case REMAINING_CARDS:
             return Object.assign({}, state, { remainingCards: action.numberOfCards});
-
         case STAND:
             return Object.assign({}, state,{stand: action.stand});
         default:
@@ -53,11 +57,44 @@ const calculate = (state = {}, action) => {
     }
 };
 
+const gameScores = (state = [], action) => {
+    if(action.type === GAME_SCORES) {
+        return [
+            ...state,
+            {[action.role]: action.hand}
+        ]
+    }
+    return state;
+};
+
+
+
+
+
+
+
+
 const mainReducer = combineReducers({
     deckData,
-    calculate,
+    dealerCards,
+    playerCards,
+    calculations,
     hitCardReducer,
-    uiChanges
+    uiChanges,
+    gameScores
 });
 
 export default mainReducer;
+
+// return state.map((item, index) => {
+//     if (index !== action.index) {
+//         // This isn't the item we care about - keep it as-is
+//         return item
+//     }
+//
+//     // Otherwise, this is the one we want - return an updated value
+//     return {
+//         ...item,
+//         ...action.item
+//     }
+// });

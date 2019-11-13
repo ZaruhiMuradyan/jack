@@ -1,56 +1,40 @@
-import React, {useState, useEffect} from 'react';
-import {showResult} from './../Helper';
+import React, { useEffect} from 'react';
+import {showResult, getData, calculateHand} from './../Helper';
 import {connect} from "react-redux";
-import {URL, ROLES, getDeck, cardsForDealer, cardsForPlayer} from "../actions";
+import {ROLES, storeGameScores} from "../actions";
+import PropTypes from 'prop-types';
 
-function Player({hit, cards, deckId, dispatch}) {
+function Player({ hand, cards, deckId, dispatch}) {
 
     useEffect(() => {
         if(deckId){
-            getData(deckId, 2, ROLES.PLAYER);
+            getData(dispatch, deckId, 2, ROLES.PLAYER);
         }
         },[deckId]);
-
-
-    function getData (deckId, numberOfCardsOrDecks, playerRole) {
-        fetch( `${URL}/${deckId}/draw/?count=${numberOfCardsOrDecks}`, {
-        mode: 'cors' //temporary solution ... no-cors throws error for localhost
-        }).then( response => response.json()).then( data => {
-            switch (playerRole) {
-                case "PLAYER":
-                    dispatch(cardsForPlayer( data.cards));
-                    return;
-                case "DEALER" :
-                    dispatch(cardsForDealer(data.cards));
-                    return;
-                default:
-                    dispatch(getDeck(data));
-            }
-
-        });
-    }
-
-    useEffect( () => {
-        console.log(hit);
-        getData(deckId, 1, ROLES.PLAYER);
-            // fetch(`https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=1`, {
-            //     mode: 'cors', // no-cors
-            // }).then(response => response.json()).then(data => setInitialCards(initialCards.concat(data && data.cards)));
-    }, [hit]);
 
     return (
         <div>
             <div className="cards-pair">
-                {showResult(cards, "PLAYER" )}
+                {showResult(cards && cards, "PLAYER")}
+            </div>
+            <div>
+                <p className="text">{hand}</p>
             </div>
         </div>
     )
+}
+
+Player.propTypes = {
+    deckId: PropTypes.string,
+    cards: PropTypes.array,
+    hand: PropTypes.number
 };
 
 const mapStateToProps = (state) => {
     return {
         deckId: state && state.deckData && state.deckData.deck_id,
-        cards: state && state.deckData && state.deckData.player
+        cards: state && state.playerCards,
+        hand: state && state.gameScores && state.gameScores[0] && state.gameScores[0].PLAYER
     }
 };
 
